@@ -1,4 +1,0 @@
-schoolbus
-=========
-
-School bus tracker

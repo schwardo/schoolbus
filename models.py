@@ -1,20 +1,21 @@
 from google.appengine.ext import ndb
 
+class Adult(ndb.Model):
+  name = ndb.StringProperty()
+  phone_number = ndb.StringProperty()
+  students = ndb.KeyProperty(kind='Student', repeated=True)
+
 class Student(ndb.Model):
   name = ndb.StringProperty()
   grade = ndb.StringProperty()
-  guardians = ndb.KeyProperty(kind='Guardian', repeated=true)
+  main_contact = ndb.KeyProperty(kind='Adult')
 
-class Guardian(ndb.Model):
-  name = ndb.StringProperty()
-  phone_number = ndb.StringProperty()
-  
 class Route(ndb.Model):
   name = ndb.StringProperty()
   stops = ndb.KeyProperty(kind='Stop', repeated=True)
 
-class Stop(mdb.Model):
-  index = ndb.IntProperty()
+class Stop(ndb.Model):
+  index = ndb.IntegerProperty()
   name = ndb.StringProperty()
   address = ndb.StringProperty()
   coords = ndb.GeoPtProperty()
@@ -24,16 +25,15 @@ class Stop(mdb.Model):
 
 class StudentSchedule(ndb.Model):
   student = ndb.KeyProperty(kind='Student')
-  date = ndb.DateTime()
+  date = ndb.DateProperty()
   shift = ndb.StringProperty()  # 'pickup' or 'dropoff'
   stop = ndb.KeyProperty(kind='Stop')
-  guardian = ndb.StringProperty()
 
 class BusRun(ndb.Model):
   route = ndb.KeyProperty(kind='Route')
   shift = ndb.StringProperty()  # 'pickup' or 'dropoff'
-  date = ndb.DateTime()
-  chaperone = ndb.KeyProperty(kind='Student')
+  date = ndb.DateProperty()
+  chaperone = ndb.KeyProperty(kind='Adult')
   
 class RoutePosition(ndb.Model):
   bus_run = ndb.KeyProperty(kind='BusRun')
