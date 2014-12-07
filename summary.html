@@ -9,12 +9,12 @@
   <link rel="stylesheet" href="_assets/css/jqm-demos.css">
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">
-  <link rel="stylesheet" href="http://cdn.rawgit.com/arschmitz/jquery-mobile-datepicker-wrapper/v0.1.1/jquery.mobile.datepicker.css">
+  <link rel="stylesheet" href="http://cdn.rawgit.com/arschmitz/jquery-mobile-datepicker-wrapper/v0.1.2/jquery.mobile.datepicker.css">
   <script src="js/jquery.js"></script>
   <script src="_assets/js/index.js"></script>
   <script src="js/jquery.mobile-1.4.5.min.js"></script>
   <script src="http://cdn.rawgit.com/jquery/jquery-ui/1.10.4/ui/jquery.ui.datepicker.js"></script>
-  <script id="mobile-datepicker" src="http://cdn.rawgit.com/arschmitz/jquery-mobile-datepicker-wrapper/v0.1.1/jquery.mobile.datepicker.js"></script>
+  <script id="mobile-datepicker" src="http://cdn.rawgit.com/arschmitz/jquery-mobile-datepicker-wrapper/v0.1.2/jquery.mobile.datepicker.js"></script>
 
 	<style id="collapsible-list-item-style-flat">
 		.ui-li-static.ui-collapsible > .ui-collapsible-heading {
@@ -74,22 +74,52 @@
         <style>
           #map-page, #map-canvas { width: 100%; height: 100%; padding: 0; }
         </style>
+      <script>
+        $.datepicker.setDefaults({
+          'beforeShowDay': function(date) {
+            if (date.getDay() == 0 || date.getDay() == 6) {
+              return [false, ""];
+            } else {
+              return [true, ""];
+            }
+          },
+          'dateFormat': "yy-mm-dd",
+          'onSelect': function(datestr) {
+            $.mobile.changePage('/?date=' + datestr);
+            return true;
+          },
+        });
+      </script>
 </head>
 <body>
   <div id="main-page" data-role="page" class="jqm-demos" data-quicklinks="true">
     <div data-role="header" data-position="fixed">
       <h1>BusTracker</h1>
-      {% if prev_url: %}
-        <a href="{{prev_url}}" data-icon="arrow-l" id="prev">Previous</a>
-      {% else %}
-        <a href="#" class="ui-disabled"></a>
-      {% endif %}
-      {% if next_url: %}
-        <a href="{{next_url}}" data-icon="arrow-r" id="next">Next</a>
-      {% else %}
-        <a href="#" class="ui-disabled"></a>
-      {% endif %}
-<!--      <a href="schedule.html" class="ui-btn ui-icon-calendar ui-btn-icon-right">Schedule</a> -->
+      <div data-role="navbar">
+        <ul>
+          <li>
+            {% if prev_url: %}
+            <a href="{{prev_url}}" data-icon="arrow-l">Previous Day</a>
+            {% else %}
+            <a href="#" class="ui-disabled" data-icon="arrow-l">Previous Day</a>
+            {% endif %}
+          </li>
+          <li>
+            <a href="{{today_url}}" data-icon="clock" {% if is_today: %}class="ui-btn-active ui-state-persist"{% endif %}>Today</a>
+          </li>
+          <li>
+            <a href="#choose-date" data-icon="calendar" data-ajax="true">Go to date</a>
+          </li>
+          <li>
+            {% if next_url: %}
+            <a href="{{next_url}}" data-icon="arrow-r">Next Day</a>
+            {% else %}
+            <a href="#" class="ui-disabled" data-icon="arrow-r">Next Day</a>
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+
     </div>
 
     <div class="ui-body ui-content">
@@ -99,6 +129,7 @@
           <h3>Pick-up</h3>
         </div>
         <div class="ui-body ui-body-a">
+          {% if layout['pickup'] %}
           {% for route, stop, students in layout['pickup'] %}
           <p>
             {{route.name}} - <a href="#map">{{stop.address}}</a> stop at {{stop.pickup_time.strftime('%-I:%M%P')}}
@@ -110,6 +141,9 @@
             {% endfor %}
           </ul>
           {% endfor %}
+          {% else %}
+            <p>You have no pick-ups scheduled on this day.</p>
+          {% endif %}
         </div>
       </div>
       <div class="ui-corner-all">
@@ -117,6 +151,7 @@
           <h3>Drop off</h3>
         </div>
         <div class="ui-body ui-body-a">
+          {% if layout['dropoff'] %}
           {% for route, stop, students in layout['dropoff'] %}
           <p>
             {{route.name}} - <a href="#map">{{stop.address}}</a> stop at {{stop.dropoff_time.strftime('%-I:%M%P')}}
@@ -127,8 +162,20 @@
             {% endfor %}
           </ul>
           {% endfor %}
+          {% else %}
+            <p>You have no drop-offs scheduled on this day.</p>
+          {% endif %}
         </div>
       </div>
+    </div>
+  </div>
+
+  <div id="choose-date" data-role="page" data-dialog="true">
+    <div data-role="header">
+      <h1>Choose a Date</h1>
+    </div>
+    <div data-role="content">
+      <input id="datepicker" type="text" data-inline="true" data-role="date"></input>
     </div>
   </div>
 </body>

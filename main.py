@@ -27,7 +27,8 @@ class SummaryPage(webapp2.RequestHandler):
     def get(self):
         adult = Adult.get_by_id('msimpson')
 
-        now = datetime.fromordinal(date.today().toordinal())
+        today = date.today()
+        now = datetime.fromordinal(today.toordinal())
         if self.request.get('date'):
             now = datetime.strptime(self.request.get('date'), '%Y-%m-%d')
 
@@ -76,6 +77,8 @@ class SummaryPage(webapp2.RequestHandler):
             'adult': adult,
             'date': current_date,
             'layout': layout,
+            'today_url': '/',
+            'is_today': not self.request.get('date'),
             'prev_url': '/?date=%s' % prev_date.strftime('%Y-%m-%d'),
             'next_url': '/?date=%s' % next_date.strftime('%Y-%m-%d'),
         }
